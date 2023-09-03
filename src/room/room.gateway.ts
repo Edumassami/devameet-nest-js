@@ -98,4 +98,22 @@ export class RoomGateway implements OnGatewayInit, OnGatewayDisconnect  {
     const users = await this.service.listUsersPositionByLink(link);
     this.wss.emit(`${link}-update-user-list`, {users});
   }
+
+  @SubscribeMessage('call-user')
+  async callUser(client: Socket, data: any){
+    this.logger.debug(`Call user: ${client.id} to: ${data.to}`);
+    client.to(data.to).emit('call-made', {
+      offer: data.offer,
+      socket: client.id
+    });
+  }
+
+  @SubscribeMessage('make-answer')
+  async makeAnswer (client: Socket, data: any){
+    this.logger.debug(`Make answer: ${client.id} to: ${data.to}`);
+    client.to(data.to).emit('answer-made', {
+      answer: data.answer,
+      socket: client.id
+    });
+  }
 }
